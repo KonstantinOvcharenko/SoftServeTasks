@@ -25,7 +25,7 @@ class Finder_2 implements Runnable {
 
 		this.maxValue = maxValue;
 		this.allThreads = allThreads;
-		currentNumber = minValue;
+		currentNumber = this.minValue;
 		t = new Thread(this, "finder");
 	}
 

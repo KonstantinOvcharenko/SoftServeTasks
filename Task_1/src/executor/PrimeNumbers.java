@@ -1,51 +1,59 @@
 package executor;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-class PrimeNumbers {
-	private Finder_1[] finders;
+public class PrimeNumbers {
+	List<Integer> primeNumbers = Collections.synchronizedList(new LinkedList<Integer>());
+	ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	public void find() {
-		int min = 0, max = 0, threads = 1;
+		int min, max, threads;
 		Scanner scan = new Scanner(System.in);
-		System.out.println("Welcome to program, which finds prime numbers!\nPlease, choose parameters of search:");
 
-		do {
-			System.out.print("Enter Start value >>> ");
-			min = Integer.parseInt(scan.next());
-		} while (min < 2);
+		System.out.print("Enter value from> ");
+		min = Integer.parseInt(scan.next());
 
-		do {
-			System.out.print("Enter Max value >>> ");
-			max = Integer.parseInt(scan.next());
-		} while (max < 2 | max > Integer.MAX_VALUE);
+		System.out.print("Enter value to> ");
+		max = Integer.parseInt(scan.next());
 
-		do {
-			System.out.print("Enter number of threads from 1 to 8 >>> ");
-			threads = Integer.parseInt(scan.next());
-		} while (threads < 1 & threads > 8);
-
+		System.out.print("Enter value of threads> ");
+		threads = Integer.parseInt(scan.next());
 		scan.close();
 
-		Numbers primeNumbers = new Numbers();
-		finders = new Finder_1[threads];
-		int startNumber = min;
-
-		for (int f = 0; f < threads; f++) {
-			finders[f] = new Finder_1(startNumber, max, threads, primeNumbers);
-			startNumber += 2;
+		long start = System.currentTimeMillis();
+		for (int t = 0; t < threads; t++) {
+			service.execute(new Searcher(min, max, threads, primeNumbers));
+			min += 2;
 		}
-
-		// Executor section
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		for (int i = 0; i < finders.length; i++) {
-			executor.execute(finders[i]);
+		service.shutdown();
+		try {
+			service.awaitTermination(1, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		long finish = System.currentTimeMillis();
+		System.out.println("Time spent: " + (finish - start) + " ms");
 
-		executor.shutdown();
+		this.showPrimeNumbers();
+	}
 
-		primeNumbers.printPrimeNumbers();
+	public void showPrimeNumbers() {
+		Collections.sort(primeNumbers);
+		System.out.println("Prime numbers: ");
+		int count = 0;
+		for (int n : primeNumbers) {
+			System.out.print(n + " ");
+			count++;
+			if (count == 15) {
+				System.out.println();
+			}
+		}
 	}
 }
