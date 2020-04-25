@@ -18,6 +18,6 @@ public class Car {
 
 	@Override
 	public String toString() {
-		return "Car, mark=" + mark + ",model=" + model + ", price=" + price + ", year=" + year;
+		return "Car, mark=" + mark + ", model=" + model + ", price=" + price + ", year=" + year;
 	}
 }
